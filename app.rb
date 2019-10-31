@@ -1,13 +1,33 @@
 require 'nokogiri'
 require 'open-uri'
+require 'mail'
 
-search_word = ["Google", "yahoo"]
+search_word = ["Google", "Designer"]
 
-doc = Nokogiri::HTML(open('https://www.google.com'))
 
-doc.xpath('//*[@id="prm"]/div/a').each do |link|
+mail = Mail.new do
+  from    'FROM_MAIL'
+  to      'TO_MAIL'
+  subject 'Scraping Test'
+  body 'scraping'
+end
+
+options = { :address               => 'smtp.gmail.com',
+            :port                  => 587,
+            :domain                => 'gmail.com',
+            :user_name             => 'FROM_MAIL',
+            :password              => 'FROM_MAIL_PW',
+            :authentication        => :plain,
+            :enable_starttls_auto  => true  }
+
+
+
+doc = Nokogiri::HTML(open('URL'))
+
+doc.xpath('XPATH').each do |link|
   if search_word.any? {|w| link.content.include?(w)}
-    #send mail
-    puts link.content
+    mail.charset = 'utf-8'
+    mail.delivery_method(:smtp, options)
+    mail.deliver
   end
 end
